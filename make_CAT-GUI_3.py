@@ -62,22 +62,21 @@ config.read('catia_catalog_settings.ini')
 # Define the layout for the GUI
 sg.theme('Reddit')
 layout = [
-    [sg.Text('Root Directory'), sg.Input(config.get('planning', 'root_dir'), key='root_dir', size=(80, 1)), sg.FolderBrowse()],  # Add a file browser input for the root directory
-    [sg.Text('Associations File Path'), sg.Input(config.get('planning', 'assoc_file'), key='assocs_file_path', size=(80, 1)), sg.FileBrowse(file_types=(('Text Files', '*.txt'),))],
-    [sg.Text('Planning File Output Path'), sg.Input(config.get('planning', 'output_file'), key='planning_file_path', size=(80, 1)), sg.FileSaveAs(file_types=(('JSON Files', '*.json'),))],
-    [sg.Button('Save current paths')],
-    [sg.Button('Copy Step Files to Root')],
-    [sg.Button('Create Planning File')],
-    [sg.Button('Move Catia Files to Directories')],
-    [sg.Text('Base Directory'), sg.Input(config.get('make_cat_csv', 'base_dir'), key='base_dir', size=(80, 1)), sg.FolderBrowse()],
-    [sg.Text('CSV File Path'), sg.Input(config.get('make_cat_csv', 'csv_file_path'), key='csv_file_path', size=(80, 1)), sg.FileSaveAs(file_types=(('CSV Files', '*.csv'),))],
-    [sg.Button('Generate CSV for Catia batch Catalog')],
-
+    [sg.Text('Root Directory', size=(20, 1), justification='right'), sg.Input(config.get('planning', 'root_dir'), key='root_dir', size=(80, 1)), sg.FolderBrowse()],
+    [sg.Text('Associations File Path', size=(20, 1), justification='right'), sg.Input(config.get('planning', 'assoc_file'), key='assocs_file_path', size=(80, 1)), sg.FileBrowse(file_types=(('Text Files', '*.txt'),))],
+    [sg.Text('Planning File Output Path', size=(20, 1), justification='right'), sg.Input(config.get('planning', 'output_file'), key='planning_file_path', size=(80, 1)), sg.FileSaveAs(file_types=(('JSON Files', '*.json'),))],
+    [sg.Button('Save current paths'), sg.Button('Copy Files to Root'), sg.Button('Create Planning File'), sg.Button('Move Back')],  # Place the buttons on the same row
+    [sg.Text('Base Directory', size=(20, 1), justification='right'), sg.Input(config.get('make_cat_csv', 'base_dir'), key='base_dir', size=(80, 1)), sg.FolderBrowse()],
+    [sg.Text('CSV File Path', size=(20, 1), justification='right'), sg.Input(config.get('make_cat_csv', 'csv_file_path'), key='csv_file_path', size=(80, 1)), sg.FileSaveAs(file_types=(('CSV Files', '*.csv'),))],
+    [sg.Button('Generate CSV for Catia batch Catalog'), sg.Button('Create Cat Script file')],
+    [sg.Text('Cat Script File Path', size=(20, 1), justification='right'), sg.Input(config.get('catalog', 'script_filepath'), key='script_filepath', size=(80, 1)), sg.FileSaveAs(file_types=(('CATScript Files', '*.CATScript'),))],
+    [sg.Text('Catalog Output Path', size=(20, 1), justification='right'), sg.Input(config.get('catalog', 'cat_path'), key='cat_path', size=(80, 1)), sg.FolderBrowse()],
+    [sg.Text('Catalog Output Name', size=(20, 1), justification='right'), sg.Input(config.get('catalog', 'cat_name'), key='cat_name', size=(80, 1))],
 ]
 
-# Create the window
 
-window = sg.Window('Make CAT CSV', layout, size=(900, 350))
+# Create the window
+window = sg.Window('Make CAT CSV', layout, size=(900, 400))
 
 # Event loop
 while True:
@@ -88,9 +87,12 @@ while True:
         # Update the settings in the INI file
         config.set('make_cat_csv', 'base_dir', values['base_dir'])
         config.set('make_cat_csv', 'csv_file_path', values['csv_file_path'])
-        config.set('planning', 'root_dir', values['root_dir'])  # Update the root directory in the INI file
-        config.set('planning', 'assoc_file', values['assocs_file_path'])  # Update the assocs file path in the INI file
-        config.set('planning', 'output_file', values['planning_file_path'])  # Update the output file path in the INI file
+        config.set('planning', 'root_dir', values['root_dir'])
+        config.set('planning', 'assoc_file', values['assocs_file_path'])
+        config.set('planning', 'output_file', values['planning_file_path'])
+        config.set('catalog', 'script_filepath', values['script_filepath'])  # Update the script file path in the INI file
+        config.set('catalog', 'cat_path', values['cat_path'])
+        config.set('catalog', 'cat_name', values['cat_name'])  # Update the catalog output name in the INI file
         with open('catia_catalog_settings.ini', 'w') as configfile:
             config.write(configfile)
     elif event == 'Generate CSV for Catia batch Catalog':
@@ -173,8 +175,38 @@ while True:
     elif event == 'Move Catia Files to Directories':
         result_message = ccmback.copy_planned_moves()  # Call the copy_planned_moves function from the ccmback module
         sg.popup(result_message, auto_close=True, auto_close_duration=3)
+    elif event == 'Create Cat Script file':  # Add a condition for the 'Create Cat Script file' button
+        # Get the paths from the values
+        input_file = values['csv_file_path']
+        output_file = os.path.join(values['cat_path'], values['cat_name'] + '.catalog')
+        script_file_path = values['script_filepath']
+
+        # Create the CATScript content
+        cat_script_content = f"""Language="VBSCRIPT"
+
+Sub CATMain()
+
+InputFile="{input_file}"
+OutputFile="{output_file}"
+
+Dim Catalog As Document
+set Catalog=CATIA.Documents.Add("CatalogDocument")
+
+Catalog.CreateCatalogFromcsv InputFile, OutputFile
+
+Catalog.Close
+
+End Sub
+"""
+
+        # Write the CATScript content to the file
+        with open(script_file_path, 'w') as f:
+            f.write(cat_script_content)
+
+        sg.popup('CATScript file has been created successfully.', auto_close=True, auto_close_duration=3)
 
 window.close()
+
 
 
 # this script reads the settings from the INI file, displays a GUI that allows
