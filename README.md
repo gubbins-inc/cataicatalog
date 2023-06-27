@@ -86,9 +86,16 @@ write your own script that organises files & folders in to one of 2 formats:
       SP-36202-MSS,	,		20.3,		,	        0.113,	SA-085010, 		N/A,
 
 ### step 2: 
+
+*(IF you have STEP, STP files that need converting)*
+
 use the make_CAT-GUI_3 script (copy Step Files to Root) to make copies of all step files in the root
 
+
 ### step 3:
+
+*(IF you have STEP, STP files that need converting)*
+
 use catia batch utilities to turn step files in to products and or parts
 
     > Tools  > Utility > Batch-DXF-IGES-STEP
@@ -102,19 +109,34 @@ Set the output directory to root, output file type as part/product
     > Run
 
 ### step 4:
+
+*(IF you have a whole bunch of catia Products and Parts in root with no idea which parts belong to which Product)*
+
 use catia script (ExtractCATProductMetadata) to create an output file which documents which catparts belong to which catproducts (because the parts all get generic names)
 The script is here: [catiacatalog.bas](https://github.com/gubbins-inc/cataicatalog/blob/main/catiacatalog.bas)
 
 ### step 5:
+
+*(IF you have Catia Parts and Products that need to be put back in the right place in teh folder structure)*
+
 use the make_CAT-GUI_3 script (Create Planning File) to generate a planning file of where to copy-paste all the catia parts and products
 
 ### step 6:
+
+*(IF you have Catia Parts and Products that need to be put back in the right place in teh folder structure)*
+
 check this looks right
 
 ### step 7:
+
+*(IF you have Catia Parts and Products that need to be put back in the right place in teh folder structure)*
+
 use the make_CAT-GUI_3 script (Move Catia Files to Directories) to do the move
 
 ### step 8:
+
+*(IF you have Catia Parts and Products that need to be put back in the right place in teh folder structure)*
+
 manually clean up the root of folder (delete stuff that has been moved or used)
 
 ### step 9:
