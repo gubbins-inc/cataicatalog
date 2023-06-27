@@ -103,9 +103,10 @@ Set the output directory to root, output file type as part/product
 
 ### step 4:
 use catia script (ExtractCATProductMetadata) to create an output file which documents which catparts belong to which catproducts (because the parts all get generic names)
+The script is here: [catiacatalog.bas](https://github.com/gubbins-inc/cataicatalog/blob/main/catiacatalog.bas)
 
 ### step 5:
-use the make_CAT-GUI_3 script (Create PLanning File) to generate a planning file of where to copy-paste all the catia parts and products
+use the make_CAT-GUI_3 script (Create Planning File) to generate a planning file of where to copy-paste all the catia parts and products
 
 ### step 6:
 check this looks right
